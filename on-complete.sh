@@ -4,6 +4,8 @@
 MIN_SIZE=10m
 # 排除文件类型，仅 BT 多文件下载时有效，用于过滤无用文件。排除的文件将被删除，不会上传。
 EXCLUDE_FILE='html,url,lnk,txt,jpg,png'
+# RCLONE 异常退出重试次数
+RETRY_NUM=3
 #============================================================
 filePath=$3                                   # Aria2传递给脚本的文件路径。BT下载有多个文件时该值为文件夹内第一个文件，如/root/Download/a/b/1.mp4
 RELATIVE_PATH=${filePath#./downloads/}   # 路径转换，去掉开头的下载路径。
