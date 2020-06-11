@@ -42,7 +42,7 @@ CLEAN_UP() {
 UPLOAD() {
     echo -e "$(date +"%m/%d %H:%M:%S") ${INFO} Start upload..."
     TASK_INFO
-    rclone move -v --config="rclone.conf" --delete-empty-src-dirs "${UPLOAD_PATH}" "${REMOTE_PATH}"
+    rclone copy -v --config="rclone.conf" "${UPLOAD_PATH}" "${REMOTE_PATH}"
 }
 
 if [ -e "${filePath}.aria2" ]; then
