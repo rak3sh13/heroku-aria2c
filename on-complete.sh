@@ -37,24 +37,13 @@ CLEAN_UP() {
     [[ -n ${EXCLUDE_FILE} ]] && rclone delete -v --config="rclone.conf" "${UPLOAD_PATH}" --include "*.{${EXCLUDE_FILE}}"
 }
 
-UPLOAD_FILE() {
-    RETRY=0
-    while [ ${RETRY} -le ${RETRY_NUM} ]; do
-        [ ${RETRY} != 0 ] && (
-            echo
-            echo -e "$(date +"%m/%d %H:%M:%S") ${ERROR} Upload failed! Retry ${RETRY}/${RETRY_NUM} ..."
-            echo
-        )
-        rclone move -v --config="rclone.conf" --delete-empty-src-dirs "${UPLOAD_PATH}" "${REMOTE_PATH}"
-    done
-}
+
 
 UPLOAD() {
     echo -e "$(date +"%m/%d %H:%M:%S") ${INFO} Start upload..."
     TASK_INFO
-    UPLOAD_FILE
+    rclone move -v --config="rclone.conf" --delete-empty-src-dirs "${UPLOAD_PATH}" "${REMOTE_PATH}"
 }
-
 
 if [ -e "${filePath}.aria2" ]; then
     DOT_ARIA2_FILE="${filePath}.aria2"
@@ -70,8 +59,8 @@ if [ "${TOP_PATH}" = "${filePath}" ] && [ $2 -eq 1 ]; then # 普通单文件下�
 elif [ "${TOP_PATH}" != "${filePath}" ] && [ $2 -gt 1 ]; then # BT下载（文件夹内文件数大于1），移动整个文件夹到设定的网盘文件夹。
     UPLOAD_PATH="${TOP_PATH}"
     REMOTE_PATH="DRIVE:$RCLONE_DESTINATION/${RELATIVE_PATH%%/*}"
-    UPLOAD
     CLEAN_UP
+    UPLOAD
     exit 0
 fi
 
