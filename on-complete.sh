@@ -45,24 +45,7 @@ UPLOAD_FILE() {
             echo -e "$(date +"%m/%d %H:%M:%S") ${ERROR} Upload failed! Retry ${RETRY}/${RETRY_NUM} ..."
             echo
         )
-        rclone move -v --config="rclone.conf" "${UPLOAD_PATH}" "${REMOTE_PATH}"
-        RCLONE_EXIT_CODE=$?
-        if [ ${RCLONE_EXIT_CODE} -eq 0 ]; then
-            [ -e "${DOT_ARIA2_FILE}" ] && rm -vf "${DOT_ARIA2_FILE}"
-            rclone rmdirs -v --config="rclone.conf" "./downloads" --leave-root
-            echo -e "$(date +"%m/%d %H:%M:%S") ${INFO} Upload done: ${UPLOAD_PATH} -> ${REMOTE_PATH}"
-            [ $LOG_PATH ] && echo -e "$(date +"%m/%d %H:%M:%S") [INFO] Upload done: ${UPLOAD_PATH} -> ${REMOTE_PATH}" >>${LOG_PATH}
-            break
-        else
-            RETRY=$((${RETRY} + 1))
-            [ ${RETRY} -gt ${RETRY_NUM} ] && (
-                echo
-                echo -e "$(date +"%m/%d %H:%M:%S") ${ERROR} Upload failed: ${UPLOAD_PATH}"
-                [ $LOG_PATH ] && echo -e "$(date +"%m/%d %H:%M:%S") [ERROR] Upload failed: ${UPLOAD_PATH}" >>${LOG_PATH}
-                echo
-            )
-            sleep 3
-        fi
+        rclone move -v --config="rclone.conf" "${UPLOAD_PATH}" "${REMOTE_PATH}" --delete-empty-src-dirs
     done
 }
 
@@ -71,14 +54,6 @@ UPLOAD() {
     TASK_INFO
     UPLOAD_FILE
 }
-
-if [ -z $2 ]; then
-    echo && echo -e "${ERROR} This script can only be used by passing parameters through Aria2."
-    echo && echo -e "${WARRING} 直接运行此脚本可能导致无法开机！"
-    exit 1
-elif [ $2 -eq 0 ]; then
-    exit 0
-fi
 
 
 if [ -e "${filePath}.aria2" ]; then
@@ -96,12 +71,6 @@ elif [ "${TOP_PATH}" != "${filePath}" ] && [ $2 -gt 1 ]; then # BT下载（文�
     UPLOAD_PATH="${TOP_PATH}"
     REMOTE_PATH="DRIVE:$RCLONE_DESTINATION/${RELATIVE_PATH%%/*}"
     CLEAN_UP
-    UPLOAD
-    exit 0
-elif [ "${TOP_PATH}" != "${filePath}" ] && [ $2 -eq 1 ]; then # 第三方度盘工具下载（子文件夹或多级目录等情况下的单文件下载）、BT下载（文件夹内文件数等于1），移动文件到设定的网盘文件夹下的相同路径文件夹。
-    UPLOAD_PATH="${filePath}"
-    REMOTE_PATH="DRIVE:$RCLONE_DESTINATION/${RELATIVE_PATH%/*}"
-    UPLOAD
     exit 0
 fi
 
