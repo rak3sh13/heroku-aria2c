@@ -63,6 +63,15 @@ RETRY_NUM=3
 FILE_PATH=$3                                   # Aria2传递给脚本的文件路径。BT下载有多个文件时该值为文件夹内第一个文件，如/root/Download/a/b/1.mp4
 RELATIVE_PATH=${FILE_PATH#${DOWNLOAD_PATH}/}   # 路径转换，去掉开头的下载路径。
 TOP_PATH=${DOWNLOAD_PATH}/${RELATIVE_PATH%%/*} # 路径转换，BT下载文件夹时为顶层文件夹路径，普通单文件下载时与文件路径相同。
+echo
+echo -e "${FILE_PATH}"
+echo
+echo
+echo -e "${RELATIVE_PATH}"
+echo
+echo
+echo -e "${TOP_PATH}"
+echo
 RED_FONT_PREFIX="\033[31m"
 LIGHT_GREEN_FONT_PREFIX="\033[1;32m"
 YELLOW_FONT_PREFIX="\033[1;33m"
@@ -149,11 +158,6 @@ elif [ "${TOP_PATH}" != "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # BT下载（文�
     UPLOAD_PATH="${TOP_PATH}"
     REMOTE_PATH="${DRIVE_NAME}:${DRIVE_PATH}/${RELATIVE_PATH%%/*}"
     CLEAN_UP
-    UPLOAD
-    exit 0
-elif [ "${TOP_PATH}" != "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 第三方度盘工具下载（子文件夹或多级目录等情况下的单文件下载）、BT下载（文件夹内文件数等于1），移动文件到设定的网盘文件夹下的相同路径文件夹。
-    UPLOAD_PATH="${FILE_PATH}"
-    REMOTE_PATH="${DRIVE_NAME}:${DRIVE_PATH}/${RELATIVE_PATH%/*}"
     UPLOAD
     exit 0
 fi
