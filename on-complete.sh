@@ -18,6 +18,8 @@ DOWNLOAD_PATH='./downloads'
 
 # Rclone 配置时填写的网盘名(name)
 DRIVE_NAME='DRIVE'
+# 网盘目录。即上传目标路径，留空为网盘根目录，末尾不要有斜杠。
+DRIVE_PATH='/Fast.io/fanweiya.imfast.io/heroku'
 
 ## 文件过滤 ##
 
@@ -83,9 +85,9 @@ ${LIGHT_PURPLE_FONT_PREFIX}Remote path:${FONT_COLOR_SUFFIX} ${REMOTE_PATH}
 
 CLEAN_UP() {
     [[ -n ${MIN_SIZE} || -n ${INCLUDE_FILE} || -n ${EXCLUDE_FILE} ]] && echo -e "${INFO} Clean up excluded files ..."
-    [[ -n ${MIN_SIZE} ]] && rclone delete -v --config="rclone.conf" "${UPLOAD_PATH}" --max-size ${MIN_SIZE}
-    [[ -n ${INCLUDE_FILE} ]] && rclone delete -v --config="rclone.conf" "${UPLOAD_PATH}" --exclude "*.{${INCLUDE_FILE}}"
-    [[ -n ${EXCLUDE_FILE} ]] && rclone delete -v --config="rclone.conf" "${UPLOAD_PATH}" --include "*.{${EXCLUDE_FILE}}"
+    [[ -n ${MIN_SIZE} ]] && rclone delete -v "${UPLOAD_PATH}" --max-size ${MIN_SIZE}
+    [[ -n ${INCLUDE_FILE} ]] && rclone delete -v "${UPLOAD_PATH}" --exclude "*.{${INCLUDE_FILE}}"
+    [[ -n ${EXCLUDE_FILE} ]] && rclone delete -v "${UPLOAD_PATH}" --include "*.{${EXCLUDE_FILE}}"
 }
 
 UPLOAD_FILE() {
@@ -96,11 +98,11 @@ UPLOAD_FILE() {
             echo -e "$(date +"%m/%d %H:%M:%S") ${ERROR} Upload failed! Retry ${RETRY}/${RETRY_NUM} ..."
             echo
         )
-        rclone move -v --config="rclone.conf" "${UPLOAD_PATH}" "${REMOTE_PATH}"
+        rclone move -v "${UPLOAD_PATH}" "${REMOTE_PATH}"
         RCLONE_EXIT_CODE=$?
         if [ ${RCLONE_EXIT_CODE} -eq 0 ]; then
             [ -e "${DOT_ARIA2_FILE}" ] && rm -vf "${DOT_ARIA2_FILE}"
-            rclone rmdirs -v --config="rclone.conf" "${DOWNLOAD_PATH}" --leave-root
+            rclone rmdirs -v "${DOWNLOAD_PATH}" --leave-root
             echo -e "$(date +"%m/%d %H:%M:%S") ${INFO} Upload done: ${UPLOAD_PATH} -> ${REMOTE_PATH}"
             [ $LOG_PATH ] && echo -e "$(date +"%m/%d %H:%M:%S") [INFO] Upload done: ${UPLOAD_PATH} -> ${REMOTE_PATH}" >>${LOG_PATH}
             break
@@ -131,25 +133,6 @@ elif [ $2 -eq 0 ]; then
     exit 0
 fi
 
-echo
-echo -e "
------------------------------------------------------------
-    _         _          _   _       _                 _ 
-   / \  _   _| |_ ___   | | | |_ __ | | ___   __ _  __| |
-  / _ \| | | | __/ _ \  | | | | '_ \| |/ _ \ / _\` |/ _\` |
- / ___ \ |_| | || (_) | | |_| | |_) | | (_) | (_| | (_| |
-/_/   \_\__,_|\__\___/   \___/| .__/|_|\___/ \__,_|\__,_|
-                              |_|
-https://github.com/P3TERX/aria2.conf
-File name：autoupload.sh
-Description: Aria2 download completes calling Rclone upload
-Lisence: MIT
-Version: 2.0
-Author: P3TERX
-Blog: https://p3terx.com
------------------------------------------------------------
-"
-echo
 
 if [ -e "${FILE_PATH}.aria2" ]; then
     DOT_ARIA2_FILE="${FILE_PATH}.aria2"
@@ -159,13 +142,18 @@ fi
 
 if [ "${TOP_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 普通单文件下载，移动文件到设定的网盘文件夹。
     UPLOAD_PATH="${FILE_PATH}"
-    REMOTE_PATH="${DRIVE_NAME}:$RCLONE_DESTINATION"
+    REMOTE_PATH="${DRIVE_NAME}:${DRIVE_PATH}"
     UPLOAD
     exit 0
 elif [ "${TOP_PATH}" != "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # BT下载（文件夹内文件数大于1），移动整个文件夹到设定的网盘文件夹。
     UPLOAD_PATH="${TOP_PATH}"
-    REMOTE_PATH="${DRIVE_NAME}:$RCLONE_DESTINATION/${RELATIVE_PATH%%/*}"
+    REMOTE_PATH="${DRIVE_NAME}:${DRIVE_PATH}/${RELATIVE_PATH%%/*}"
     CLEAN_UP
+    UPLOAD
+    exit 0
+elif [ "${TOP_PATH}" != "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 第三方度盘工具下载（子文件夹或多级目录等情况下的单文件下载）、BT下载（文件夹内文件数等于1），移动文件到设定的网盘文件夹下的相同路径文件夹。
+    UPLOAD_PATH="${FILE_PATH}"
+    REMOTE_PATH="${DRIVE_NAME}:${DRIVE_PATH}/${RELATIVE_PATH%/*}"
     UPLOAD
     exit 0
 fi
