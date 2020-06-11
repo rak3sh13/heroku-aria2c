@@ -42,7 +42,7 @@ CLEAN_UP() {
 UPLOAD() {
     echo -e "$(date +"%m/%d %H:%M:%S") ${INFO} Start upload..."
     TASK_INFO
-    rclone copy -v --config="rclone.conf" "${UPLOAD_PATH}" "${REMOTE_PATH}"
+    rclone move -v --config="rclone.conf" "${UPLOAD_PATH}" "${REMOTE_PATH}"
 }
 
 if [ -e "${filePath}.aria2" ]; then
@@ -52,15 +52,13 @@ elif [ -e "${TOP_PATH}.aria2" ]; then
 fi
 
 if [ "${TOP_PATH}" = "${filePath}" ] && [ $2 -eq 1 ]; then # 普通单文件下载，移动文件到设定的网盘文件夹。
-    UPLOAD_PATH="${filePath}"
-    REMOTE_PATH="DRIVE:$RCLONE_DESTINATION"
-    UPLOAD
+    rclone -v --config="rclone.conf" move "${filePath}" "DRIVE:$RCLONE_DESTINATION" 2>&1
     exit 0
 elif [ "${TOP_PATH}" != "${filePath}" ] && [ $2 -gt 1 ]; then # BT下载（文件夹内文件数大于1），移动整个文件夹到设定的网盘文件夹。
     UPLOAD_PATH="${TOP_PATH}"
     REMOTE_PATH="DRIVE:$RCLONE_DESTINATION/${RELATIVE_PATH%%/*}"
     CLEAN_UP
-    UPLOAD
+    rclone -v --config="rclone.conf" move "${TOP_PATH}" "DRIVE:$RCLONE_DESTINATION/${RELATIVE_PATH%%/*}"
     exit 0
 fi
 
