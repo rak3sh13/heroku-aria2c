@@ -50,7 +50,7 @@ EXCLUDE_FILE='html,url,lnk,txt,jpg,png,htm'
 #export RCLONE_CACHE_CHUNK_TOTAL_SIZE=10G
 
 # RCLONE 上传失败重试次数，默认 3
-#export RCLONE_RETRIES=3
+export RCLONE_RETRIES=3
 
 # RCLONE 上传失败重试等待时间，默认禁用，单位 s, m, h
 export RCLONE_RETRIES_SLEEP=10s
@@ -86,9 +86,9 @@ ${LIGHT_PURPLE_FONT_PREFIX}Remote path:${FONT_COLOR_SUFFIX} ${REMOTE_PATH}
 
 CLEAN_UP() {
     [[ -n ${MIN_SIZE} || -n ${INCLUDE_FILE} || -n ${EXCLUDE_FILE} ]] && echo -e "${INFO} Clean up excluded files ..."
-    [[ -n ${MIN_SIZE} ]] && rclone delete -v "${UPLOAD_PATH}" --max-size ${MIN_SIZE}
-    [[ -n ${INCLUDE_FILE} ]] && rclone delete -v "${UPLOAD_PATH}" --exclude "*.{${INCLUDE_FILE}}"
-    [[ -n ${EXCLUDE_FILE} ]] && rclone delete -v "${UPLOAD_PATH}" --include "*.{${EXCLUDE_FILE}}"
+    [[ -n ${MIN_SIZE} ]] && rclone delete -v --config="rclone.conf" "${UPLOAD_PATH}" --max-size ${MIN_SIZE}
+    [[ -n ${INCLUDE_FILE} ]] && rclone delete -v --config="rclone.conf" "${UPLOAD_PATH}" --exclude "*.{${INCLUDE_FILE}}"
+    [[ -n ${EXCLUDE_FILE} ]] && rclone delete -v --config="rclone.conf" "${UPLOAD_PATH}" --include "*.{${EXCLUDE_FILE}}"
 }
 
 UPLOAD_FILE() {
@@ -99,11 +99,11 @@ UPLOAD_FILE() {
             echo -e "$(date +"%m/%d %H:%M:%S") ${ERROR} Upload failed! Retry ${RETRY}/${RETRY_NUM} ..."
             echo
         )
-        rclone move -v "${UPLOAD_PATH}" "${REMOTE_PATH}"
+        rclone move -v --config="rclone.conf" "${UPLOAD_PATH}" "${REMOTE_PATH}"
         RCLONE_EXIT_CODE=$?
         if [ ${RCLONE_EXIT_CODE} -eq 0 ]; then
             [ -e "${DOT_ARIA2_FILE}" ] && rm -vf "${DOT_ARIA2_FILE}"
-            rclone rmdirs -v "${DOWNLOAD_PATH}" --leave-root
+            rclone rmdirs -v --config="rclone.conf" "${DOWNLOAD_PATH}" --leave-root
             echo -e "$(date +"%m/%d %H:%M:%S") ${INFO} Upload done: ${UPLOAD_PATH} -> ${REMOTE_PATH}"
             [ $LOG_PATH ] && echo -e "$(date +"%m/%d %H:%M:%S") [INFO] Upload done: ${UPLOAD_PATH} -> ${REMOTE_PATH}" >>${LOG_PATH}
             break
