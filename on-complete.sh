@@ -14,7 +14,7 @@
 # Aria2 下载目录
 # Aria2 一键安装管理脚本 增强版 请使用菜单选项统一进行修改。
 # Aria2 Pro (Docker) 无需修改，通过目录映射进行设置。
-DOWNLOAD_PATH='./downloads'
+DOWNLOAD_PATH='/downloads'
 
 # Rclone 配置时填写的网盘名(name)
 DRIVE_NAME='DRIVE'
