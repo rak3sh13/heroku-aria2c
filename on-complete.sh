@@ -18,8 +18,6 @@ DOWNLOAD_PATH='./downloads'
 
 # Rclone 配置时填写的网盘名(name)
 DRIVE_NAME='DRIVE'
-# 网盘目录。即上传目标路径，留空为网盘根目录，末尾不要有斜杠。
-DRIVE_PATH='/Fast.io/fanweiya.imfast.io/heroku'
 
 ## 文件过滤 ##
 
@@ -143,12 +141,12 @@ fi
 
 if [ "${TOP_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 普通单文件下载，移动文件到设定的网盘文件夹。
     UPLOAD_PATH="${FILE_PATH}"
-    REMOTE_PATH="${DRIVE_NAME}:${DRIVE_PATH}"
+    REMOTE_PATH="${DRIVE_NAME}:$RCLONE_DESTINATION"
     UPLOAD
     exit 0
 elif [ "${TOP_PATH}" != "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # BT下载（文件夹内文件数大于1），移动整个文件夹到设定的网盘文件夹。
     UPLOAD_PATH="${TOP_PATH}"
-    REMOTE_PATH="${DRIVE_NAME}:${DRIVE_PATH}/${RELATIVE_PATH%/*}"
+    REMOTE_PATH="${DRIVE_NAME}:$RCLONE_DESTINATION/${RELATIVE_PATH%/*}"
     CLEAN_UP
     UPLOAD
     exit 0
