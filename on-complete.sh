@@ -28,7 +28,7 @@ MIN_SIZE=10m
 #INCLUDE_FILE='mp4,mkv,rmvb,mov,avi'
 
 # 排除文件类型，仅 BT 多文件下载时有效，用于过滤无用文件。排除的文件将被删除，不会上传。
-EXCLUDE_FILE='html,url,lnk,txt,jpg,png,htm,A57X,uuf39,UUS75,荷官,UUE29'
+EXCLUDE_FILE='html,url,lnk,txt,jpg,png,htm,A57X,uuf39,UUS75,荷官,UUE29,在线一对一,YQ交友,房间火爆'
 
 ## 高级设置 ##
 
