@@ -24,10 +24,10 @@ DRIVE_NAME='DRIVE'
 MIN_SIZE=10m
 
 # 保留文件类型，仅 BT 多文件下载时有效，用于过滤无用文件。其它文件将被删除，不会上传。
-#INCLUDE_FILE='mp4,mkv,rmvb,mov,avi'
+INCLUDE_FILE='avi,mp4,mkv,rmvb,mov,wmv,mpeg,flv,rm,3gp,wmf'
 
 # 排除文件类型，仅 BT 多文件下载时有效，用于过滤无用文件。排除的文件将被删除，不会上传。
-EXCLUDE_FILE='html,url,lnk,txt,jpg,png,htm,mht'
+#EXCLUDE_FILE='html,htm,url,lnk,txt,jpg,png,htm,mht,url,apk,chm,uu,★★★★,QR\,A57X,YQ,padding,uuc,gif'
 
 ## 高级设置 ##
 
